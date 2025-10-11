@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.py.class
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# dotenv
+.env
+
+# Python packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Pipenv
+Pipfile.lock
+
+# PyInstaller
+*.manifest
+*.spec
+
+# C extensions
+*.so
+
+# Pytest cache
+.cache
+.pytest_cache/
+
+# Misc
+*.log
+
+# Spotipy cache
+.cache
+
+# Vosk model (large). Uncomment if you don't want to commit the model files
+# model/vosk-model-*/
+
+# OneDrive / Windows path artifacts
+~$*
+
+# Secrets
+secrets.json

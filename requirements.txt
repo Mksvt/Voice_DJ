@@ -1,0 +1,5 @@
+vosk
+pyaudio
+spotipy
+openai
+dotenv
