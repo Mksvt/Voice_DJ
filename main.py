@@ -1,11 +1,11 @@
 """Voice-Activated Music Assistant"""
 import os
 import json
+import pyaudio
 import tempfile
 import wave
-from typing import cast
-import pyaudio
 import openai
+from typing import cast
 from dotenv import load_dotenv
 import spotipy  # type: ignore
 from vosk import Model, KaldiRecognizer  # type: ignore
@@ -68,6 +68,7 @@ def transcribe(data:bytes)-> str:
 
     client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
+    # Open the WAV file in binary mode when sending to OpenAI
     with open(tempfile_name, "rb") as audio_file:
         transcript = client.audio.transcriptions.create(
             model="whisper-1",
@@ -99,15 +100,18 @@ def init_spotify_client():
     sp_oauth = SpotifyOAuth(client_id=SPOTIFY_CLIENT_ID,
                             client_secret=SPOTIFY_CLIENT_SECRET,
                             redirect_uri=SPOTIFY_REDIRECT_URI,
-                            scope=scope)
+                            scope=scope,
+                            open_browser=True) # Changed to automatically open browser
     token_info = sp_oauth.get_cached_token()
     if not token_info:
-        auth_url = sp_oauth.get_authorize_url()
-        print(f"Please navigate here to authorize: {auth_url}")
-        response = input("Enter the URL you were redirected to: ")
-        code = sp_oauth.parse_response_code(response)
-        token_info = sp_oauth.get_access_token(code)
-    return spotipy.Spotify(auth=token_info['access_token'])
+        # This will now open a browser and wait for the user to authenticate
+        # The redirect will be handled automatically by Spotipy if a local server is available
+        # or it will prompt for the URL if it cannot.
+        # For this to work seamlessly, ensure you have a web server (like Flask or Django)
+        # or use a simple http.server if needed, but Spotipy often handles this.
+        token_info = sp_oauth.get_access_token(as_dict=False)
+
+    return spotipy.Spotify(auth=token_info)
 
 def main() -> None:
     """Main function to run the voice assistant."""
