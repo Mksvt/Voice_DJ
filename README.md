@@ -16,7 +16,7 @@ Voice DJ — convenience tool to control Spotify playback with voice commands in
 Requirements
 
 - Python 3.9+
-- A Vosk model for Russian (or another supported language)
+- A Vosk model for Ukraine (or another supported language)
 - OpenAI API key (for Whisper endpoint)
 - Spotify Developer credentials (client id / secret) and a redirect URI
 
