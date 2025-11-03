@@ -25,37 +25,61 @@ VOSK_MODEL_PATH = os.getenv("VOSK_MODEL_PATH", "model")
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "http://localhost:8888/callback")
 
 def record_phrase(stream: pyaudio.Stream, seconds: float = 5) -> bytes:
-    """...."""
+    """Records audio from the stream for a given duration."""
     frames = []
     for _ in range(int(16000/4000 * seconds)):
         data = stream.read(4000, exception_on_overflow=False)
         frames.append(data)
     return b''.join(frames)
 
-def search_and_play(sp : spotipy.Spotify, query:str):
-    """..."""
+def search_and_play(sp: spotipy.Spotify, query: str):
+    """
+    Searches for a track on Spotify using the provided query and plays the first result.
+
+    Args:
+        sp: An authenticated Spotipy client instance.
+        query: The search query (e.g., song title and artist).
+
+    Returns:
+        True if the track was found and playback started, False otherwise.
+    """
     try:
-        results = sp.search(q=query, type="track" , limit=1)
+        results = sp.search(q=query, type="track", limit=1)
         if results["tracks"]["items"]:
             track = results["tracks"]["items"][0]
             devices = sp.devices()
 
-            if devices["devices"]:
-                devices_id = devices["devices"][0]["id"]
-                sp.start_playback(device_id=devices_id, uris=[track["uri"]])
+            if devices and devices["devices"]:
+                device_id = devices["devices"][0]["id"]
+                sp.start_playback(device_id=device_id, uris=[track["uri"]])
+                print(f"Playing '{track['name']}' by {track['artists'][0]['name']}.")
                 return True
             else:
-                print ("eroor")
+                print("No active Spotify device found.")
                 return False
-        else :
+        else:
+            print(f"No results found for '{query}'.")
             return False
 
     except Exception as e:
         print(f"Error searching and playing track: {e}")
+        return False
 
-def transcribe(data:bytes)-> str:
-    """..."""
-    with tempfile.NamedTemporaryFile(suffix=".wav" , delete=False) as temp_file:
+def transcribe(data: bytes) -> str:
+    """
+    Transcribes the given audio data using OpenAI's Whisper model.
+
+    The function saves the raw audio data to a temporary WAV file,
+    sends it to the OpenAI API for transcription, and then deletes
+    the temporary file.
+
+    Args:
+        data: A bytes object containing the raw audio data (16-bit, 16kHz, mono).
+
+    Returns:
+        The transcribed text as a string.
+    """
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
         tempfile_name = temp_file.name
     wav_file = cast(wave.Wave_write, wave.open(tempfile_name, "wb"))
     try:
